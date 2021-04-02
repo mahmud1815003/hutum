@@ -120,7 +120,7 @@ app.post('/',express.json(), (req,res) =>{
           }else if(d[i].Time != ''){
             ti = d[i].Time;
           }
-          agent.add(`${d[i].teacher}\n-----------\nSyllabus: ${sy}\nDate: ${da}\nTime: ${ti}\n\n`);
+          agent.add(`${d[i].teacher}\n----------------------\nSyllabus: ${sy}\nDate: ${da}\nTime: ${ti}\n\n`);
       
         }
       }).catch(function(error){
