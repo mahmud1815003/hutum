@@ -99,10 +99,39 @@ app.post('/',express.json(), (req,res) =>{
         agent.add("Under Maintanance");
     });
     }
+
+    function ct(agent){
+      return axios.get('https://sheetdb.io/api/v1/13be4nafzu9ug').then(s=>{
+        var d = s.data;
+        for(var i in d){
+          let sy,da,ti;
+          if(d[i].syllabus == ''){
+              sy = "Not Given";
+          }else if(d[i].syllabus != ''){
+            sy = d[i].syllabus;
+          }
+          if(d[i].date == ''){
+            da = "Not Fixed"
+          }else if(d[i].date != ''){
+            da = d[i].date;
+          }
+          if(d[i].Time == ''){
+            ti = "Not Fixed"
+          }else if(d[i].Time != ''){
+            ti = d[i].Time;
+          }
+          agent.add(`${d[i].teacher}\n-----------\nSyllabus: ${sy}\nDate: ${da}\nTime: ${ti}\n\n`);
+      
+        }
+      }).catch(function(error){
+      agent.add("Under Maintanance");
+      });
+    }
     var intentMap = new Map();
     intentMap.set('corona',coronaUpdate);
     intentMap.set('kuetbus',kuetbus);
     intentMap.set('weatherKuet',weatherKuet);
+    intentMap.set('ct',ct);
     agent.handleRequest(intentMap);
 });
 
@@ -124,6 +153,8 @@ function spliter(data){
 //     let fourth = spliter(lis[1].split(" "));
 //     console.log(lis);
 // })
+
+
 
 
 
