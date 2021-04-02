@@ -21,11 +21,11 @@ app.post('/',express.json(), (req,res) =>{
     function weatherKuet(agent){
       return axios.get('https://sheetdb.io/api/v1/0m2wuigcrc9lt').then(s=>{
           var d = s.data;
-          var a = moment((parseInt(d[0].sunrise))*1000).format('HH:mm:ss');
+          var a = moment((parseInt(d[0].sunrise))*1000).utcOffset(6).format('HH:mm:ss');
           var sunrise = moment(a, "HH:mm:ss").format("LT");
-          var b = moment((parseInt(d[0].sunset))*1000).format('HH:mm:ss');
+          var b = moment((parseInt(d[0].sunset))*1000).utcOffset(6).format('HH:mm:ss');
           var sunset = moment(b, "HH:mm:ss").format("LT");
-          var c = moment((parseInt(d[0].update))*1000).format('HH:mm:ss');
+          var c = moment((parseInt(d[0].update))*1000).utcOffset(6).format('HH:mm:ss');
           var updateLast = moment(c, "HH:mm:ss").format("LT");
           agent.add(`----KUET Weather Update----\n\nTemperature: ${d[0].temp}°C\nHumidity: ${d[0].hum}%\nFeels Like: ${d[0].feelslike}°C\nWind Speed: ${d[0].wind} m/s\nSunrise: ${sunrise}\nSunset: ${sunset}\nDescription: ${d[0].description}\n\n\-----Last Update ${updateLast}------\n`);
         
@@ -124,6 +124,7 @@ function spliter(data){
 //     let fourth = spliter(lis[1].split(" "));
 //     console.log(lis);
 // })
+
 
 
 app.listen(port,() => {
