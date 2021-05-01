@@ -5,7 +5,6 @@ const {google} = require('googleapis')
 const axios = require('axios')
 const moment = require('moment')
 const cheerio = require('cheerio');
-const http = require('http');
 
 const port = process.env.PORT || 3000
 
@@ -95,12 +94,42 @@ app.post('/',express.json(), (req,res) =>{
       const third = spliter(death_all.split(" "));
       const updater = spliter(update.split(" "));
       agent.add(`---করোনা আপডেট বাংলাদেশ---\n\n    --------গত ২৪ ঘন্টায়------\nআক্রান্তঃ ${second[0]}\nমৃত্যুঃ ${third[0]}\nসুস্থঃ ${second[1]}\nপরীক্ষাঃ ${second[2]}\n\n   --------সর্বোমোট হিসাব-------\nআক্রান্তঃ ${first[0]}\nমৃত্যুঃ ${third[1]}\nসুস্থঃ ${first[1]}\nপরীক্ষাঃ ${first[2]}\n\n${updater[0]} ${updater[1]}\n\n    ---সুত্রঃ ${updater[3]} ${updater[4]}---`);
-      
+      agent.add(new dfff.Card({
+           title: 'For more info:',
+           text: 'Graphical Data',
+           buttonText: 'Go',
+           buttonUrl: 'https://corona.gov.bd/graph'
+        }));
+      agent.add(new dfff.Card({
+           title: 'Govt. Website',
+           text: 'corona.gov.bd', 
+           buttonText: 'Go',
+           buttonUrl: 'https://corona.gov.bd/'
+        }));
       }).catch(function(error){
         agent.add("Under Maintanance");
     });
     }
-
+   
+    function namazTime(agent){
+      return axios.get('https://www.islamicfinder.org/world/bangladesh/1336135/khulna-prayer-times/').then( s=>{
+        var laster = s.data;
+        const $ = cheerio.load(laster);
+        const allTime = $('span[class = "prayertime"]').text();
+        const one = $('div[class = "pt-date font-dark font-sm"] > p').text();
+        const two = $('p[class = "font-weight-bold pt-date-right"]').text();
+        const final = timeSpilter(allTime,one,two);
+        agent.add(`---Namaz Schedule of Khulna---\n\nFajr: ${final.namaz[0]} AM\nDhuhr: ${final.namaz[2]} PM\nAsr: ${final.namaz[3]} PM\nMaghrib: ${final.namaz[4]} PM\nIsha: ${final.namaz[5]} PM\n\nDate: ${final.english}\n------------------------------\nSource: Islamic Finder\n`);
+        agent.add(new dfff.Card({
+           title: 'For more info:',
+           buttonText: 'Go',
+           buttonUrl: 'https://www.islamicfinder.org/world/bangladesh/1336135/khulna-prayer-times/'
+        }));
+        
+     }).catch(function(error){
+        agent.add('Under Maintanance');
+     });
+    }
     function ct(agent){
       return axios.get('https://sheetdb.io/api/v1/13be4nafzu9ug').then(s=>{
         var d = s.data;
@@ -121,17 +150,19 @@ app.post('/',express.json(), (req,res) =>{
           }else if(d[i].Time != ''){
             ti = d[i].Time;
           }
-          agent.add(`${d[i].teacher}\n----------------------\nSyllabus: ${sy}\nDate: ${da}\nTime: ${ti}\n\n`);
+          agent.add(`${d[i].teacher}\n----------------------\nSyllabus: ${sy}\nDate: ${da}\nTime: ${ti}\nLink:\n${d[i].link}`);
       
         }
       }).catch(function(error){
       agent.add("Under Maintanance");
       });
     }
+  
     var intentMap = new Map();
     intentMap.set('corona',coronaUpdate);
     intentMap.set('kuetbus',kuetbus);
     intentMap.set('weatherKuet',weatherKuet);
+    intentMap.set('namaz',namazTime);
     intentMap.set('ct',ct);
     agent.handleRequest(intentMap);
 });
@@ -155,33 +186,14 @@ function spliter(data){
 //     console.log(lis);
 // })
 
-function startKeepAlive() {
-  setInterval(function() {
-      var options = {
-          host: 'your_app_name.herokuapp.com',
-          port: 80,
-          path: '/'
-      };
-      http.get(options, function(res) {
-          res.on('data', function(chunk) {
-              try {
-                  // optional logging... disable after it's working
-                  console.log("HEROKU RESPONSE: " + chunk);
-              } catch (err) {
-                  console.log(err.message);
-              }
-          });
-      }).on('error', function(err) {
-          console.log("Error: " + err.message);
-      });
-  }, 20 * 60 * 1000); // load every 20 minutes
+function timeSpilter(allTime, EnglishDate,ArbiDate)
+{
+  const x = allTime.replace(/AM/g,'');
+  const y = x.replace(/PM/g,'').trim();
+  const namaz = y.split(' ');
+  const english = EnglishDate.replace(ArbiDate,'');
+  return {namaz,english};
 }
-
-startKeepAlive();
-
-
-
-
 
 app.listen(port,() => {
     console.log(`Listening on Port ${port}`)
