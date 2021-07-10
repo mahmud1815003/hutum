@@ -18,11 +18,13 @@
     "express": "^4.17.1",
     "googleapis": "^39.2.0",
     "moment": "^2.29.1",
+    "nodemailer": "^6.6.1",
     "openweather-apis": "^4.4.1",
-    "puppeteer": "^8.0.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "request-promise-native": "^1.0.9",
-    "yt-trending-scraper": "^1.1.2"
+    "semver": "^7.3.5",
+    "table-scraper": "^1.0.3",
+    "tabletojson": "^2.0.6"
   }
 }
