@@ -945,16 +945,6 @@ function timeSpilter(allTime, EnglishDate,ArbiDate)
   return {namaz,english};
 }
 
-axios.get('https://corona.lmao.ninja/v2/countries/BD').then(function(s){
-            const coronaData = s.data;
-            //console.log(coronaData);
-            const updated = moment(coronaData.updated*1000).utcOffset(6).format("h:mm a");
-            //agent.add(`${coronaData.todayCases}\n${updated}`);
-            console.log(updated);
-        }).catch((error) =>{
-            //agent.add('under maintanance');
-        });
-
 
 app.listen(port,() => {
     console.log(`Listening on Port ${port}`)
