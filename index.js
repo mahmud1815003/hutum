@@ -872,28 +872,81 @@ app.post('/',express.json(), (req,res) =>{
     });
 }
   
-    function movieRequest(agent){
-      const name = agent.parameters.name;
-      const email = agent.parameters.email;
-      const movie = agent.parameters.movie;
-      const series = agent.parameters.series;
-       let mailDetails = {
-          from: `${process.env.fromEmail}`,
-          to: `${process.env.toEmail}`,
-          subject: `Movie/Series Request From ${name}`,
-          text: `Name: ${name}\nEmail: ${email}\nMovies: ${movie}\nSeris: ${series}\n`
-      };
+function movieRequest(agent){
+        const emailer = agent.parameters.email;
+        const movie = agent.parameters.movie;
+        const series = agent.parameters.series;
+        const regex = /([a-z]+)(([0-9]{2})(25|23|15|29|01|07|09|03|13|11|19|05|27|31|21|17)([0-9]{3}))(@stud.kuet.ac.bd)/i
+        if(regex.test(emailer) == false){
+          agent.add('সঠিক কুয়েটের ইমেইল দেও নাই 🙂🙂। রিকোয়েস্ট তাই গেলো না 🥴🥴');
+          return;
+        }
+        const dept = {
+            '01' : "Civil",
+            '03' : "EEE",
+            '05' : "ME",
+            '07' : "CSE",
+            '09' : "ECE",
+            '11' : "IEM",
+            '13' : "ESE",
+            '15' : "BME",
+            '17' : "URP",
+            '19' : "LE",
+            '21' : "TE",
+            '23' : "BECM",
+            '25' : "ARCH",
+            '27' : "MSE",
+            '29' : "ChE",
+            '31' : "MTE"
 
-       mailTransporter.sendMail(mailDetails, function(err, data) {
-          if(err) {
-              console.log('Error Occurs');
-          } else {
-              console.log('Your Request Has Been Sent Successfully');
-          }
-      });
-   
-      agent.add(`তোমার ডিটেইলস\n\n\nনাম: ${name}\nইমেইল: ${email}\nমুভি: ${movie}\nসিরিজঃ ${series}\n\n\nতোমার রিকুয়েস্ট এডমিন প্যানেলের কাছে পৌছে দেওয়া হয়েছে। ধন্যবাদ আমাদের মুভি সার্ভিস ব্যবহারের জন্য`);
-    }
+        }
+        const name = cap(emailer.replace(/(([0-9]{2})(25|23|15|29|01|07|09|03|13|11|19|05|27|31|21|17)([0-9]{3}))(@stud.kuet.ac.bd)/i, ''));
+        const roll = emailer.match(/([0-9]{2})(25|23|15|29|01|07|09|03|13|11|19|05|27|31|21|17)([0-9]{3})/i);
+        const department = dept[roll[2]];
+        let mailDetails = {
+            from: `${process.env.fromEmail}`,
+            to: `${process.env.toEmail}`,
+            subject: `Movie/Series Request From ${name}`,
+            text: `Name: ${name}\nEmail: ${emailer}\nMovies: ${movie}\nSeris: ${series}\n`
+        };
+
+        mailTransporter.sendMail(mailDetails, function(err, data) {
+            if(err) {
+                console.log('Error Occurs');
+            } else {
+                console.log('Your Request Has Been Sent Successfully');
+            }
+        });
+
+        agent.add(`তোমার ডিটেইলস\n\n\nনামঃ ${name}\nইমেইলঃ ${emailer}\nডিপার্টমেন্টঃ ${department}\nরোলঃ ${roll[0]}\nমুভি: ${movie}\nসিরিজঃ ${series}\n\n\nতোমার রিকুয়েস্ট এডমিন প্যানেলের কাছে পৌছে দেওয়া হয়েছে। কিছুক্ষণের মাঝেই ইমেইলের মাধ্যমে তোমার সাথে যোগাযোগ করা হবে। ধন্যবাদ আমাদের মুভি সার্ভিস ব্যবহারের জন্য`);
+}
+
+function currentTime(agent){
+   let cTime = new Date();
+   let hour = moment(cTime).utcOffset(6).format('h:mm a');
+   let day = moment(cTime).utcOffset(6).format('dddd');
+   let month = moment(cTime).utcOffset(6).format('MMMM');
+   let year = moment(cTime).utcOffset(6).format('YYYY');
+   let dateth = moment(cTime).utcOffset(6).format('DD');
+   let numberofday = moment(cTime).utcOffset(6).format('DDDD');
+   agent.add(`It is ${hour}\n\nToday is ${day}.\n${dateth} ${month}, ${year}...\n\nThis is the ${numberofday} number day of ${year} 😪😪`);
+
+  }
+
+function happyNewYear(agent){
+      let cTime = new Date();
+      let month = parseInt(moment(cTime).utcOffset(6).format('MM'));
+      let date = parseInt(moment(cTime).utcOffset(6).format('DD'));
+      let year = moment(cTime).utcOffset(6).format('YYYY');
+      if(month === 1 && date === 1){
+        agent.add(`Happy New Year ${year}`);
+      }else if(month === 4 && date === 14){
+        agent.add('শুভ বাংলা নববর্ষ...');
+      }else{
+        agent.add('আজকে বাংলা বা ইংরেজি কোন বর্ষের প্রথম দিন নয়। কেন হুদাই ফাউ কথা বলতেছো...')
+      }
+}
+
 
     function experiment(agent){
          return axios.get('https://corona.lmao.ninja/v2/countries/BD').then(function(s){
@@ -945,6 +998,9 @@ function timeSpilter(allTime, EnglishDate,ArbiDate)
   return {namaz,english};
 }
 
+function cap (str){
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 app.listen(port,() => {
     console.log(`Listening on Port ${port}`)
