@@ -5,7 +5,7 @@ const moment = require('moment');
 //module scaffolding
 const handler = {};
 
-const key = "589db9eace2504c5712122fee0f261af";
+const key = "";
 const lat = 22.899470169557958;
 const lon = 89.50105830838595;
 const apiurl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${key}`;
